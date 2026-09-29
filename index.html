@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evaluare Farmacii</title>
+<meta name="theme-color" content="#00824a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --bg:#f4f6f5;--card:#fff;--ink:#1c2422;--muted:#66736f;--line:#dde3e1;
+  --brand:#00824a;--brand-2:#39b549;--accent:#f36f20;--sun:#fff100;--brand-soft:#e6f4ec;
+  --danger:#b42318;--warn:#b54708;--ok:#067647;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:10;background:#fff;color:var(--brand);padding:8px 16px 12px;display:flex;align-items:center;gap:14px;padding-top:max(8px,env(safe-area-inset-top))}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,var(--brand) 0 55%,var(--sun) 55% 70%,var(--accent) 70%)}
+header .logo{height:36px;width:auto;display:block}
+header h1{font-size:18px;margin:0;flex:1;font-weight:700;color:var(--brand)}
+header button{background:var(--brand-soft);color:var(--brand);border:0;border-radius:8px;padding:8px 12px;font-size:15px;font-weight:600}
+nav{display:flex;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:56px;z-index:9}
+nav button{flex:1;border:0;background:none;padding:14px 8px;font-size:15px;color:var(--muted);border-bottom:3px solid transparent}
+nav button.on{color:var(--brand);border-bottom-color:var(--accent);font-weight:600}
+main{max-width:960px;margin:0 auto;padding:16px 16px 96px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+h2{font-size:20px;margin:4px 0 12px}
+h3{font-size:16px;margin:0 0 8px;color:var(--brand)}
+label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:12px 18px;font:inherit;font-weight:600;background:var(--brand);color:#fff;min-height:46px}
+.btn.sec{background:var(--brand-soft);color:var(--brand)}
+.btn.danger{background:#fdecea;color:var(--danger)}
+.btn.block{width:100%}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.list-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.list-item:last-child{border-bottom:0}
+.list-item .grow{flex:1;min-width:0}
+.list-item .t{font-weight:600}
+.list-item .s{font-size:14px;color:var(--muted)}
+.pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.v-fb{background:#dcfae6;color:var(--ok)}.v-b{background:#e6f4ec;color:var(--brand)}
+.v-s{background:#fef0c7;color:var(--warn)}.v-n{background:#fdecea;color:var(--danger)}
+.crit{padding:12px 0;border-top:1px solid var(--line)}
+.crit:first-of-type{border-top:0}
+.crit .name{font-weight:500;margin-bottom:8px}
+.scores{display:flex;gap:6px;flex-wrap:wrap}
+.scores button{min-width:48px;height:48px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:600;color:var(--ink)}
+.scores button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.scores button.na.on{background:var(--muted);border-color:var(--muted)}
+.crit textarea{margin-top:8px;min-height:44px}
+.sticky-score{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;z-index:20}
+.sticky-score .big{font-size:22px;font-weight:700}
+.empty{color:var(--muted);text-align:center;padding:24px}
+.remind{background:#fff4e8;border:1px solid #f9c79f;border-left:5px solid var(--accent);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px}
+.remind b{display:block;margin-bottom:2px}.remind .s{color:var(--muted);font-size:14px}
+.remind .btns{margin-top:10px}
+.search{margin-bottom:12px}
+.hidden{display:none!important}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1c2422;color:#fff;padding:10px 18px;border-radius:10px;z-index:50;font-size:15px}
+.tabs{display:flex;gap:6px;position:sticky;top:56px;z-index:8;background:var(--bg);padding:8px 0;margin:-8px 0 4px}
+.tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:12px 6px;font:inherit;font-weight:600;color:var(--muted)}
+.tabs button.on{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:inset 0 -3px 0 var(--accent)}
+details>summary{list-style:none;cursor:pointer}
+details>summary::-webkit-details-marker{display:none}
+.staffcard>summary,.staffview>summary{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+.staffcard>summary::before,.staffview>summary::before,.fold>summary::before{content:"›";color:var(--accent);font-size:28px;line-height:1;font-weight:700;display:inline-block;width:14px;transition:transform .15s;margin-right:6px}
+.staffcard[open]>summary::before,.staffview[open]>summary::before,.fold[open]>summary::before{transform:rotate(90deg)}
+.staffcard[open]>summary{padding-bottom:10px;border-bottom:2px solid var(--brand-soft)}
+.staffcard .t,.staffview .t{font-weight:600}.staffcard .s,.staffview .s{font-size:14px;color:var(--muted)}
+.cgroup{margin-top:14px}
+.staffview{padding:12px 0;border-bottom:1px solid var(--line)}
+.sv-body{padding:6px 0 0 24px}.sv-body h4{margin:12px 0 4px;color:var(--brand)}
+.check{display:flex;align-items:center;gap:12px;padding:10px 0;margin:0;border-bottom:1px solid var(--line);color:var(--ink);font-size:16px}
+.check input{width:24px;height:24px;flex:none;accent-color:var(--brand)}
+.addnew{margin-top:12px}.addnew>summary{display:inline-flex}
+.hist{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0 8px 24px;border-top:1px dashed var(--line);cursor:pointer}
+.recap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+.recap>div{background:var(--brand-soft);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:14px}
+.recap b{font-size:26px;color:var(--ink)}.recap .pill{align-self:flex-start}
+.cat{font-weight:700;color:var(--brand);margin:14px 0 2px;font-size:15px}
+.crow{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)}
+.crow.editing{display:grid;grid-template-columns:1fr 1.6fr auto;gap:8px;background:var(--brand-soft);padding:8px;border-radius:10px;border:0}
+@media(max-width:600px){.crow.editing{grid-template-columns:1fr}}
+.ib{min-width:42px;height:42px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:16px;color:var(--brand);flex:none}
+.ib:disabled{opacity:.3}.ib.del{color:var(--danger)}
+#report{display:none}
+.rep{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rep-head{display:flex;align-items:center;gap:16px;padding-bottom:10px;margin-bottom:10px;border-bottom:3px solid var(--brand);position:relative}
+.rep-head::after{content:"";position:absolute;right:0;bottom:-3px;width:30%;height:3px;background:linear-gradient(90deg,var(--sun),var(--accent))}
+.rep-head img{height:44px;width:auto}
+.rep-head .grow{flex:1}
+.rep-sub{color:#555;font-size:13px}
+.rep h1{font-size:21px;margin:0 0 2px;color:var(--brand)}
+.rep h3{color:var(--brand);font-size:15px;margin:14px 0 4px}
+.rep .scale{font-size:12px;color:#555}
+.rep .pb{break-before:page}
+.rep table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:13px}
+.rep th,.rep td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top}
+.rep th{background:#e6f4ec}
+.rep .meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:14px;margin:12px 0}
+.rep .sum{border:2px solid var(--brand);border-radius:8px;padding:10px 14px;margin:12px 0;display:flex;justify-content:space-between;align-items:center}
+.rep .sign{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px;font-size:14px}
+.rep .sign div{border-top:1px solid #333;padding-top:6px}
+@media print{
+  @page{size:A4;margin:14mm}
+  html,body{background:#fff}
+  header,nav,main,.sticky-score,.toast{display:none!important}
+  #report{display:block!important;color:#000}
+  .rep th{background:#e6f4ec!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rep tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <img class="logo" src="logo-catena.png" alt="CATENA">
+  <h1 id="title">Evaluare Farmacii</h1>
+  <button id="backBtn" class="hidden" onclick="goBack()">‹ Înapoi</button>
+</header>
+<nav id="nav">
+  <button data-v="evals" class="on">Evaluări</button>
+  <button data-v="pharm">Farmacii</button>
+  <button data-v="settings">Setări</button>
+</nav>
+<main id="app"></main>
+<div id="scoreBar" class="sticky-score hidden"></div>
+<div id="report"></div>
+
+<script>
+/* ================= Date implicite ================= */
+const DEFAULT_CRITERIA = [
+  {g:"Igienă și curățenie", n:"Curățenia spațiului de vânzare (oficină)"},
+  {g:"Igienă și curățenie", n:"Curățenia depozitului și a spațiilor anexe"},
+  {g:"Igienă și curățenie", n:"Echipament de protecție și ținută personal"},
+  {g:"Stoc și disponibilitate", n:"Disponibilitatea medicamentelor esențiale"},
+  {g:"Stoc și disponibilitate", n:"Gestionarea produselor expirate / aproape de expirare"},
+  {g:"Stoc și disponibilitate", n:"Ordinea și etichetarea produselor"},
+  {g:"Depozitare și temperatură", n:"Frigider 2–8°C funcțional, cu termometru"},
+  {g:"Depozitare și temperatură", n:"Jurnal de temperatură și umiditate completat"},
+  {g:"Depozitare și temperatură", n:"Depozitare separată (psihotrope, retururi, neconforme)"},
+  {g:"Documente și autorizații", n:"Autorizație de funcționare afișată și valabilă"},
+  {g:"Documente și autorizații", n:"Registre și evidențe la zi"},
+  {g:"Documente și autorizații", n:"Proceduri operaționale disponibile"},
+  {g:"Personal și consiliere", n:"Prezența farmacistului pe durata programului"},
+  {g:"Personal și consiliere", n:"Calitatea consilierii pacienților"},
+  {g:"Personal și consiliere", n:"Comportament și comunicare"},
+  {g:"Spațiu și accesibilitate", n:"Program afișat și respectat"},
+  {g:"Spațiu și accesibilitate", n:"Accesibilitate și aspect general al spațiului"}
+];
+const ROLES = {farmacist:"Farmacist", asistent:"Asistent"};
+const DEFAULT_STAFF_CRITERIA = {
+  farmacist: [
+    {g:"Competență profesională", n:"Validarea și eliberarea corectă a prescripțiilor"},
+    {g:"Competență profesională", n:"Cunoașterea legislației și a procedurilor"},
+    {g:"Competență profesională", n:"Farmacovigilență și raportarea reacțiilor adverse"},
+    {g:"Relația cu pacientul", n:"Consilierea pacientului (administrare, interacțiuni)"},
+    {g:"Relația cu pacientul", n:"Comunicare și amabilitate"},
+    {g:"Organizare și conduită", n:"Coordonarea activității / îndrumarea asistenților"},
+    {g:"Organizare și conduită", n:"Ținută, echipament și igienă personală"}
+  ],
+  asistent: [
+    {g:"Activitate curentă", n:"Recepția și verificarea mărfii"},
+    {g:"Activitate curentă", n:"Aranjarea și etichetarea produselor"},
+    {g:"Activitate curentă", n:"Verificarea termenelor de valabilitate"},
+    {g:"Activitate curentă", n:"Curățenia locului de muncă"},
+    {g:"Relația cu pacientul", n:"Comunicare și amabilitate"},
+    {g:"Organizare și conduită", n:"Respectarea procedurilor și a indicațiilor farmacistului"},
+    {g:"Organizare și conduită", n:"Ținută, echipament și igienă personală"}
+  ]
+};
+
+/* ================= Stocare ================= */
+const KEY = "evalfarm.v1";
+function defCrit(){ return DEFAULT_CRITERIA.map((c,i)=>({id:"c"+(i+1), g:c.g, n:c.n})); }
+function defStaffCrit(){
+  const o={};
+  for(const r in ROLES) o[r]=DEFAULT_STAFF_CRITERIA[r].map((c,i)=>({id:r[0]+(i+1), g:c.g, n:c.n}));
+  return o;
+}
+// Completează câmpurile adăugate în versiuni noi (date sau backup-uri vechi)
+function migrate(d){
+  if(!d.criteria) d.criteria=defCrit();
+  if(!d.staffCriteria) d.staffCriteria=defStaffCrit();
+  for(const r in ROLES) if(!d.staffCriteria[r]) d.staffCriteria[r]=defStaffCrit()[r];
+  if(d.evaluator==null) d.evaluator="";
+  d.pharmacies.forEach(p=>{ if(!p.staff) p.staff=[]; });
+  d.evals.forEach(e=>{ if(!e.staff) e.staff=[]; });
+  return d;
+}
+function load(){
+  try{
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if(d && d.pharmacies && d.evals) return migrate(d);
+  }catch(e){}
+  return migrate({pharmacies:[], evals:[]});
+}
+let DB = load();
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
+  catch(e){ toast("Eroare la salvare!"); }
+}
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+
+/* ================= Utilitare ================= */
+const $ = s => document.querySelector(s);
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc = s => String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const fmtDate = d => d ? d.split("-").reverse().join(".") : "";
+function toast(msg){
+  document.querySelectorAll(".toast").forEach(x=>x.remove());
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
+function pharm(id){ return DB.pharmacies.find(x=>x.id===id); }
+function pharmName(id){ const p=pharm(id); return p?p.name:"(farmacie ștearsă)"; }
+
+function computeScore(ev){
+  const vals = ev.items.filter(i=>i.s>0).map(i=>i.s);
+  if(!vals.length) return {pct:null, avg:null, n:0, total:ev.items.length};
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  return {pct: Math.round((avg-1)/4*100), avg, n:vals.length, total:ev.items.length};
+}
+function verdict(pct){
+  if(pct===null) return {t:"Neevaluat", c:"v-s"};
+  if(pct>=85) return {t:"Foarte bine", c:"v-fb"};
+  if(pct>=70) return {t:"Bine", c:"v-b"};
+  if(pct>=50) return {t:"Satisfăcător", c:"v-s"};
+  return {t:"Nesatisfăcător", c:"v-n"};
+}
+
+/* ================= Navigare ================= */
+let view = "evals", editing = null, backTo = ["evals"];
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+// back: ecranul la care duce „‹ Înapoi” ([view, arg]); implicit Evaluări, respectiv Farmacii pentru Angajați
+function go(v, arg, back){
+  view = v;
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+  const sub = (v==="form" || v==="view" || v==="staff");
+  backTo = back || (v==="staff" ? ["pharm"] : ["evals"]);
+  $("#nav").classList.toggle("hidden", sub);
+  $("#backBtn").classList.toggle("hidden", !sub);
+  $("#scoreBar").classList.add("hidden");
+  if(v==="settings") critEdit = null;
+  window.scrollTo(0,0);
+  ({evals:renderEvals, pharm:renderPharm, settings:renderSettings, form:renderForm, view:renderView, staff:renderStaff})[v](arg);
+}
+function goBack(){ go(backTo[0], backTo[1]); }
+
+/* ================= Listă evaluări ================= */
+function renderEvals(){
+  $("#title").textContent = "Evaluări";
+  const evs = [...DB.evals].sort((a,b)=>(b.date+b.updated).localeCompare(a.date+a.updated));
+  $("#app").innerHTML = `
+    ${backupReminder()}
+    <button class="btn block" onclick="newEval()">＋ Evaluare nouă</button>
+    <div style="height:12px"></div>
+    <input class="search" id="q" placeholder="Caută după farmacie, oraș, dată…" oninput="filterEvals()">
+    <div class="card" id="evList">${
+      evs.length ? evs.map(ev=>{
+        const s=computeScore(ev), v=verdict(s.pct), p=pharm(ev.pharmacyId);
+        return `<div class="list-item" data-q="${esc((pharmName(ev.pharmacyId)+" "+(p?.city||"")+" "+fmtDate(ev.date)).toLowerCase())}" onclick="go('view','${ev.id}')">
+          <div class="grow"><div class="t">${esc(pharmName(ev.pharmacyId))}</div>
+          <div class="s">${fmtDate(ev.date)}${p?.city?" · "+esc(p.city):""}${ev.status==="draft"?" · <b>Ciornă</b>":""}</div></div>
+          <span class="pill ${v.c}">${s.pct===null?"—":s.pct+"%"} · ${v.t}</span></div>`;
+      }).join("") : `<div class="empty">Nicio evaluare încă.<br>Adaugă întâi o farmacie, apoi apasă „Evaluare nouă”.</div>`
+    }</div>`;
+}
+function filterEvals(){
+  const q=$("#q").value.toLowerCase().trim();
+  document.querySelectorAll("#evList .list-item").forEach(el=>el.classList.toggle("hidden", !!q && !el.dataset.q.includes(q)));
+}
+function blankItems(list){ return (list||DB.criteria).map(c=>({cid:c.id, g:c.g, n:c.n, s:0, note:""})); }
+const roleName = r => ROLES[r] || r;
+function newStaffEntry(m){ return {staffId:m.id, name:m.name, role:m.role, items:blankItems(DB.staffCriteria[m.role]), note:""}; }
+function teamScore(ev){
+  const v = ev.staff.map(x=>computeScore(x).pct).filter(p=>p!==null);
+  return {pct: v.length ? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : null, n: ev.staff.length};
+}
+let formTab = "pharm", openStaff = new Set();
+function startForm(ev){ editing = ev; formTab = "pharm"; openStaff = new Set(); go("form"); }
+function newEval(){
+  if(!DB.pharmacies.length){ toast("Adaugă întâi o farmacie"); go("pharm"); return; }
+  startForm({
+    id:uid(), pharmacyId:"", date:today(), evaluator:DB.evaluator||"", representative:"",
+    items: blankItems(), staff:[], general:"", recommendations:"", status:"draft",
+    created:new Date().toISOString(), updated:""
+  });
+}
+function editEval(id){
+  startForm(JSON.parse(JSON.stringify(DB.evals.find(e=>e.id===id))));
+}
+
+/* ================= Formular evaluare ================= */
+function itemsOf(scope){ return scope<0 ? editing.items : editing.staff[scope].items; }
+// scope: -1 = criteriile farmaciei, k >= 0 = angajatul editing.staff[k]
+function critBlock(items, scope){
+  let lastG = null, html = "";
+  items.forEach((it,i)=>{
+    if(it.g!==lastG){ if(lastG!==null) html+=`</div>`; html+=`<div class="${scope<0?"card":"cgroup"}"><h3>${esc(it.g)}</h3>`; lastG=it.g; }
+    html += `<div class="crit">
+      <div class="name">${esc(it.n)}</div>
+      <div class="scores" data-s="${scope}" data-i="${i}">
+        ${[1,2,3,4,5].map(n=>`<button class="${it.s===n?"on":""}" onclick="setScore(${scope},${i},${n})">${n}</button>`).join("")}
+        <button class="na ${it.s===-1?"on":""}" onclick="setScore(${scope},${i},-1)">N/A</button>
+      </div>
+      <textarea placeholder="Observații…" oninput="itemsOf(${scope})[${i}].note=this.value">${esc(it.note)}</textarea>
+    </div>`;
+  });
+  if(lastG!==null) html+=`</div>`;
+  return html;
+}
+function renderForm(){
+  $("#title").textContent = "Evaluare";
+  const tabs = [["pharm","Farmacie"],["staff",`Angajați (${editing.staff.length})`],["concl","Concluzii"]];
+  $("#app").innerHTML = `<div class="tabs">${tabs.map(([k,t])=>`<button class="${formTab===k?"on":""}" onclick="setFormTab('${k}')">${t}</button>`).join("")}</div>`
+    + ({pharm:formPharmTab, staff:formStaffTab, concl:formConclTab})[formTab]();
+  updateScoreBar();
+}
+function setFormTab(t){ formTab = t; renderForm(); window.scrollTo(0,0); }
+function formPharmTab(){
+  const ev = editing;
+  return `
+    <div class="card">
+      <h2>Date evaluare</h2>
+      <label>Farmacie</label>
+      <select onchange="changePharm(this)">
+        <option value="">— alege —</option>
+        ${DB.pharmacies.map(p=>`<option value="${p.id}" ${p.id===ev.pharmacyId?"selected":""}>${esc(p.name)}${p.city?" – "+esc(p.city):""}</option>`).join("")}
+      </select>
+      <div class="row">
+        <div><label>Data</label><input type="date" value="${ev.date}" onchange="editing.date=this.value"></div>
+        <div><label>Evaluator</label><input value="${esc(ev.evaluator)}" oninput="editing.evaluator=this.value"></div>
+      </div>
+      <label>Reprezentant farmacie (farmacist șef / prezent)</label>
+      <input value="${esc(ev.representative)}" oninput="editing.representative=this.value">
+      <p style="color:var(--muted);font-size:14px;margin:12px 0 0">Notare: 1 = foarte slab · 3 = acceptabil · 5 = excelent · N/A = nu se aplică (nu intră în scor)</p>
+    </div>
+    ${critBlock(ev.items, -1)}
+    <div class="btns" style="justify-content:flex-end"><button class="btn" onclick="setFormTab('staff')">Continuă la Angajați ›</button></div>`;
+}
+function changePharm(sel){
+  if(editing.staff.length){
+    if(!confirm("Evaluările angajaților de la farmacia aleasă anterior vor fi șterse. Continui?")){ sel.value = editing.pharmacyId; return; }
+    editing.staff = []; openStaff.clear();
+  }
+  editing.pharmacyId = sel.value;
+  renderForm();
+}
+function staffHead(x){
+  const s=computeScore(x), v=verdict(s.pct), done=x.items.filter(i=>i.s!==0).length;
+  return `<span class="s">${done}/${x.items.length}</span> <span class="pill ${v.c}">${s.pct===null?"—":s.pct+"%"}</span>`;
+}
+function formStaffTab(){
+  const p = pharm(editing.pharmacyId);
+  if(!p) return `<div class="card empty">Alege întâi farmacia (fila Farmacie).</div>`;
+  const inEval = new Set(editing.staff.map(x=>x.staffId));
+  const list = p.staff.filter(s=>s.active || inEval.has(s.id));
+  return `
+    <div class="card"><h2>Angajați evaluați la această vizită</h2>
+      ${list.length ? list.map(s=>`<label class="check"><input type="checkbox" ${inEval.has(s.id)?"checked":""} onchange="toggleStaffEval('${s.id}',this)">
+        <span><b>${esc(s.name)}</b> · ${roleName(s.role)}${s.active?"":" (inactiv)"}</span></label>`).join("")
+        : `<p style="color:var(--muted);margin:0">Farmacia nu are încă angajați. Adaugă-i mai jos.</p>`}
+      <details class="addnew"><summary class="btn sec">＋ Angajat nou</summary>
+        <div class="row">
+          <div><label>Nume și prenume *</label><input id="nsName"></div>
+          <div><label>Rol</label><select id="nsRole">${roleOptions("farmacist")}</select></div>
+        </div>
+        <div class="btns"><button class="btn" onclick="addStaffInline()">Adaugă și evaluează</button></div>
+      </details>
+    </div>
+    ${editing.staff.map((x,k)=>`<details class="card staffcard" ${openStaff.has(x.staffId)?"open":""} ontoggle="this.open?openStaff.add('${x.staffId}'):openStaff.delete('${x.staffId}')">
+      <summary><div class="grow"><div class="t">${esc(x.name)}</div><div class="s">${roleName(x.role)}</div></div><span id="sh-${k}">${staffHead(x)}</span></summary>
+      ${critBlock(x.items, k)}
+      <label>Observații despre angajat</label>
+      <textarea oninput="editing.staff[${k}].note=this.value">${esc(x.note)}</textarea>
+    </details>`).join("")}
+    <div class="btns" style="justify-content:flex-end"><button class="btn" onclick="setFormTab('concl')">Continuă la Concluzii ›</button></div>`;
+}
+function toggleStaffEval(sid, cb){
+  const k = editing.staff.findIndex(x=>x.staffId===sid);
+  if(cb.checked){
+    if(k<0){ editing.staff.push(newStaffEntry(pharm(editing.pharmacyId).staff.find(s=>s.id===sid))); openStaff.add(sid); }
+  }else if(k>=0){
+    const x = editing.staff[k];
+    if((x.items.some(i=>i.s!==0) || x.note) && !confirm(`Ștergi notele date lui ${x.name} la această vizită?`)){ cb.checked = true; return; }
+    editing.staff.splice(k,1); openStaff.delete(sid);
+  }
+  renderForm();
+}
+function addStaffInline(){
+  const name = $("#nsName").value.trim(); if(!name){ toast("Completează numele"); return; }
+  const m = {id:uid(), name, role:$("#nsRole").value, active:true};
+  pharm(editing.pharmacyId).staff.push(m); save();
+  editing.staff.push(newStaffEntry(m)); openStaff.add(m.id);
+  toast("Angajat adăugat"); renderForm();
+}
+function formConclTab(){
+  const ev = editing, s = computeScore(ev), t = teamScore(ev);
+  return `
+    <div class="card">
+      <h2>Concluzii</h2>
+      <div class="recap">
+        <div>Farmacie<b>${s.pct===null?"—":s.pct+"%"}</b><span class="pill ${verdict(s.pct).c}">${verdict(s.pct).t}</span></div>
+        <div>Echipă (${t.n})<b>${t.pct===null?"—":t.pct+"%"}</b><span class="pill ${verdict(t.pct).c}">${t.n?verdict(t.pct).t:"—"}</span></div>
+      </div>
+      <label>Observații generale</label>
+      <textarea oninput="editing.general=this.value">${esc(ev.general)}</textarea>
+      <label>Recomandări / măsuri de remediere</label>
+      <textarea oninput="editing.recommendations=this.value">${esc(ev.recommendations)}</textarea>
+      <div class="btns">
+        <button class="btn sec" onclick="saveEval('draft')">Salvează ciornă</button>
+        <button class="btn" onclick="saveEval('final')">Finalizează evaluarea</button>
+      </div>
+    </div>`;
+}
+function setScore(scope,i,n){
+  const it = itemsOf(scope)[i];
+  it.s = it.s===n ? 0 : n;
+  document.querySelectorAll(`.scores[data-s="${scope}"][data-i="${i}"] button`).forEach((b,k)=>{
+    const val = k<5 ? k+1 : -1; b.classList.toggle("on", it.s===val);
+  });
+  if(scope>=0){ const h=$("#sh-"+scope); if(h) h.innerHTML = staffHead(editing.staff[scope]); }
+  updateScoreBar();
+}
+function updateScoreBar(){
+  const bar=$("#scoreBar"); bar.classList.remove("hidden");
+  if(formTab==="staff"){
+    const t=teamScore(editing), v=verdict(t.pct);
+    bar.innerHTML = `<div class="big">${t.pct===null?"—":t.pct+"%"}</div>
+      <span class="pill ${v.c}">Echipă · ${v.t}</span>
+      <div style="flex:1;text-align:right;color:var(--muted);font-size:14px">${t.n} angajați evaluați</div>`;
+    return;
+  }
+  const s=computeScore(editing), v=verdict(s.pct), done=editing.items.filter(i=>i.s!==0).length;
+  bar.innerHTML = `<div class="big">${s.pct===null?"—":s.pct+"%"}</div>
+    <span class="pill ${v.c}">Farmacie · ${v.t}</span>
+    <div style="flex:1;text-align:right;color:var(--muted);font-size:14px">${done}/${editing.items.length} criterii</div>`;
+}
+function saveEval(status){
+  const ev=editing;
+  if(!ev.pharmacyId){ toast("Alege farmacia"); setFormTab("pharm"); return; }
+  if(status==="final"){
+    const parts=[];
+    const m=ev.items.filter(i=>i.s===0).length; if(m) parts.push(`Farmacie: ${m} criterii nenotate`);
+    ev.staff.forEach(x=>{ const n=x.items.filter(i=>i.s===0).length; if(n) parts.push(`${x.name}: ${n} criterii nenotate`); });
+    if(parts.length && !confirm(parts.join("\n")+"\n\nFinalizezi oricum?")) return;
+  }
+  ev.status=status; ev.updated=new Date().toISOString();
+  if(ev.evaluator) DB.evaluator=ev.evaluator;
+  const idx=DB.evals.findIndex(e=>e.id===ev.id);
+  if(idx>=0) DB.evals[idx]=ev; else DB.evals.push(ev);
+  save(); toast(status==="final"?"Evaluare finalizată":"Ciornă salvată");
+  go("view", ev.id);
+  if(status==="final") autoBackup();
+}
+
+/* ================= Vizualizare evaluare ================= */
+function groupStats(ev){
+  const out=[];
+  ev.items.forEach(i=>{
+    let g=out.find(x=>x.g===i.g); if(!g){ g={g:i.g, v:[]}; out.push(g); }
+    if(i.s>0) g.v.push(i.s);
+  });
+  return out.map(g=>({g:g.g, pct: g.v.length? Math.round((g.v.reduce((a,b)=>a+b,0)/g.v.length-1)/4*100) : null}));
+}
+function badList(items){
+  return items.filter(i=>i.s>0&&i.s<=2).map(i=>`<div class="list-item"><div class="grow"><div class="t">${esc(i.n)}</div>${i.note?`<div class="s">${esc(i.note)}</div>`:""}</div><b>${i.s}</b></div>`).join("");
+}
+function renderView(id){
+  const ev=DB.evals.find(e=>e.id===id); if(!ev){ go("evals"); return; }
+  const s=computeScore(ev), v=verdict(s.pct), p=pharm(ev.pharmacyId), t=teamScore(ev);
+  $("#title").textContent = "Evaluare";
+  const groups = groupStats(ev);
+  const bad = badList(ev.items);
+  $("#app").innerHTML = `
+    <div class="card">
+      <h2 style="margin-bottom:4px">${esc(pharmName(ev.pharmacyId))}</h2>
+      <div style="color:var(--muted)">${fmtDate(ev.date)}${p?.address?" · "+esc(p.address):""}${p?.city?", "+esc(p.city):""}</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+        <div style="font-size:32px;font-weight:700">${s.pct===null?"—":s.pct+"%"}</div>
+        <span class="pill ${v.c}">${v.t}</span>
+        ${ev.status==="draft"?`<span class="pill v-s">Ciornă</span>`:""}
+      </div>
+      <div class="btns">
+        <button class="btn" onclick="printReport('${ev.id}')">📄 Raport PDF</button>
+        <button class="btn sec" onclick="editEval('${ev.id}')">✎ Editează</button>
+        <button class="btn sec" onclick="dupEval('${ev.id}')">⧉ Reevaluare</button>
+        <button class="btn danger" onclick="delEval('${ev.id}')">Șterge</button>
+      </div>
+    </div>
+    ${ev.staff.length?`<div class="card"><h3>Angajați evaluați</h3>
+      ${ev.staff.map(x=>{
+        const xs=computeScore(x), xv=verdict(xs.pct), xbad=badList(x.items);
+        return `<details class="staffview"><summary>
+            <div class="grow"><div class="t">${esc(x.name)}</div><div class="s">${roleName(x.role)}</div></div>
+            <span class="pill ${xv.c}">${xs.pct===null?"—":xs.pct+"%"} · ${xv.t}</span>
+            <button class="btn sec" onclick="event.preventDefault();event.stopPropagation();printStaffReport('${ev.id}','${x.staffId}')">📄 PDF</button>
+          </summary>
+          <div class="sv-body">
+            ${groupStats(x).map(g=>`<div class="list-item"><div class="grow">${esc(g.g)}</div><b>${g.pct===null?"N/A":g.pct+"%"}</b></div>`).join("")}
+            ${xbad?`<h4>Neconformități (nota 1–2)</h4>${xbad}`:""}
+            ${x.note?`<h4>Observații despre angajat</h4><div style="white-space:pre-wrap">${esc(x.note)}</div>`:""}
+          </div></details>`;
+      }).join("")}
+      <div class="list-item"><div class="grow"><b>Media echipei</b></div><span class="pill ${verdict(t.pct).c}">${t.pct===null?"—":t.pct+"%"} · ${verdict(t.pct).t}</span></div>
+    </div>`:""}
+    <div class="card"><h3>Scor pe categorii – farmacie</h3>
+      ${groups.map(g=>`<div class="list-item"><div class="grow">${esc(g.g)}</div><b>${g.pct===null?"N/A":g.pct+"%"}</b></div>`).join("")}
+    </div>
+    ${bad?`<div class="card"><h3>Neconformități farmacie (nota 1–2)</h3>${bad}</div>`:""}
+    ${ev.general?`<div class="card"><h3>Observații generale</h3><div style="white-space:pre-wrap">${esc(ev.general)}</div></div>`:""}
+    ${ev.recommendations?`<div class="card"><h3>Recomandări</h3><div style="white-space:pre-wrap">${esc(ev.recommendations)}</div></div>`:""}`;
+}
+function delEval(id){
+  if(!confirm("Ștergi definitiv această evaluare?")) return;
+  DB.evals=DB.evals.filter(e=>e.id!==id); save(); toast("Evaluare ștearsă"); go("evals");
+}
+function dupEval(id){
+  const src=DB.evals.find(e=>e.id===id), p=pharm(src.pharmacyId);
+  const members = src.staff.map(x=>p && p.staff.find(s=>s.id===x.staffId && s.active)).filter(Boolean);
+  startForm({ id:uid(), pharmacyId:src.pharmacyId, date:today(), evaluator:DB.evaluator||src.evaluator,
+    representative:src.representative, items:blankItems(), staff:members.map(newStaffEntry),
+    general:"", recommendations:"", status:"draft", created:new Date().toISOString(), updated:"" });
+  toast("Reevaluare nouă pentru aceeași farmacie");
+}
+
+/* ================= Raport PDF (print) ================= */
+const scoreTxt = n => n===-1?"N/A":n===0?"—":n;
+const slug = s => String(s||"").replace(/[^\p{L}\p{N}]+/gu,"_");
+const pctTxt = p => p===null?"—":p+"%";
+const SCALE_NOTE = `<p class="scale">Scală: 1 = foarte slab, 3 = acceptabil, 5 = excelent. Scor % = (media − 1) / 4 × 100. Calificativ: ≥85% Foarte bine, ≥70% Bine, ≥50% Satisfăcător, sub 50% Nesatisfăcător.</p>`;
+function repHeader(title, ev){
+  return `<div class="rep-head"><img src="logo-catena.png" alt="CATENA"><div class="grow"><h1>${title}</h1>
+    <div class="rep-sub">Generat la ${new Date().toLocaleString("ro-RO")}${ev.status==="draft"?" · CIORNĂ":""}</div></div></div>`;
+}
+function repSummary(label, x){
+  const s=computeScore(x), v=verdict(s.pct);
+  return `<div class="sum"><div><b style="font-size:18px">${label}: ${pctTxt(s.pct)}</b><br>
+    <span style="font-size:13px;color:#555">Media notelor: ${s.avg===null?"—":s.avg.toFixed(2)} / 5 · ${s.n} din ${s.total} criterii notate</span></div>
+    <b style="font-size:18px">${v.t}</b></div>`;
+}
+function repTables(items){
+  return `<table><tr><th>Categorie</th><th style="width:90px">Scor</th></tr>
+      ${groupStats({items}).map(g=>`<tr><td>${esc(g.g)}</td><td>${g.pct===null?"N/A":g.pct+"%"}</td></tr>`).join("")}</table>
+    <table><tr><th style="width:24%">Categorie</th><th>Criteriu</th><th style="width:50px">Notă</th><th style="width:34%">Observații</th></tr>
+      ${items.map(i=>`<tr><td>${esc(i.g)}</td><td>${esc(i.n)}</td><td style="text-align:center">${scoreTxt(i.s)}</td><td>${esc(i.note)}</td></tr>`).join("")}</table>`;
+}
+// Fișa unui angajat: folosită în raportul complet (de la pagină nouă) și în raportul individual
+function repStaffSection(ev, x, pageBreak){
+  const p=pharm(ev.pharmacyId)||{};
+  return `<section class="${pageBreak?"pb":""}">
+    ${repHeader("Fișă de evaluare – angajat", ev)}
+    <div class="meta">
+      <div><b>Angajat:</b> ${esc(x.name)}</div><div><b>Rol:</b> ${roleName(x.role)}</div>
+      <div><b>Farmacie:</b> ${esc([p.name,p.city].filter(Boolean).join(", "))}</div><div><b>Data evaluării:</b> ${fmtDate(ev.date)}</div>
+      <div><b>Evaluator:</b> ${esc(ev.evaluator)}</div>
+    </div>
+    ${repSummary("Scor total", x)}
+    ${repTables(x.items)}
+    ${x.note?`<h3>Observații despre angajat</h3><p style="white-space:pre-wrap">${esc(x.note)}</p>`:""}
+    ${SCALE_NOTE}
+    <div class="sign"><div>Evaluator: ${esc(ev.evaluator)}<br>Semnătura</div><div>Angajat – am luat la cunoștință: ${esc(x.name)}<br>Semnătura</div></div>
+  </section>`;
+}
+function printReport(id){
+  const ev=DB.evals.find(e=>e.id===id), p=pharm(ev.pharmacyId)||{}, t=teamScore(ev);
+  const pharmPart = `<section>
+    ${repHeader("Raport de evaluare farmacie", ev)}
+    <div class="meta">
+      <div><b>Farmacie:</b> ${esc(p.name||"")}</div><div><b>Data evaluării:</b> ${fmtDate(ev.date)}</div>
+      <div><b>Adresă:</b> ${esc([p.address,p.city].filter(Boolean).join(", "))}</div><div><b>Evaluator:</b> ${esc(ev.evaluator)}</div>
+      <div><b>Cod / nr. autorizație:</b> ${esc(p.code||"")}</div><div><b>Reprezentant farmacie:</b> ${esc(ev.representative)}</div>
+    </div>
+    ${repSummary("Scor total", ev)}
+    ${repTables(ev.items)}
+    ${ev.general?`<h3>Observații generale</h3><p style="white-space:pre-wrap">${esc(ev.general)}</p>`:""}
+    ${ev.recommendations?`<h3>Recomandări / măsuri de remediere</h3><p style="white-space:pre-wrap">${esc(ev.recommendations)}</p>`:""}
+    ${SCALE_NOTE}
+    <div class="sign"><div>Evaluator: ${esc(ev.evaluator)}<br>Semnătura</div><div>Reprezentant farmacie: ${esc(ev.representative)}<br>Semnătura</div></div>
+  </section>`;
+  const staffPart = !ev.staff.length ? "" : `<section class="pb">
+      ${repHeader("Evaluarea personalului", ev)}
+      <div class="meta"><div><b>Farmacie:</b> ${esc(p.name||"")}</div><div><b>Data evaluării:</b> ${fmtDate(ev.date)}</div></div>
+      <table><tr><th>Nume</th><th>Rol</th><th style="width:70px">Scor</th><th style="width:120px">Calificativ</th></tr>
+        ${ev.staff.map(x=>{ const s=computeScore(x); return `<tr><td>${esc(x.name)}</td><td>${roleName(x.role)}</td><td>${pctTxt(s.pct)}</td><td>${verdict(s.pct).t}</td></tr>`; }).join("")}</table>
+      <div class="sum"><b style="font-size:18px">Media echipei: ${pctTxt(t.pct)}</b><b style="font-size:18px">${verdict(t.pct).t}</b></div>
+    </section>` + ev.staff.map(x=>repStaffSection(ev, x, true)).join("");
+  printHtml(`<div class="rep">${pharmPart}${staffPart}</div>`, `Evaluare_${slug(p.name||"farmacie")}_${ev.date}`);
+}
+function printStaffReport(evId, staffId){
+  const ev=DB.evals.find(e=>e.id===evId), x=ev.staff.find(s=>s.staffId===staffId), p=pharm(ev.pharmacyId)||{};
+  printHtml(`<div class="rep">${repStaffSection(ev, x, false)}</div>`, `Evaluare_${slug(x.name)}_${slug(p.name||"farmacie")}_${ev.date}`);
+}
+// Titlul documentului devine numele sugerat al PDF-ului; sigla trebuie încărcată înainte de tipărire
+function printHtml(html, title){
+  const rep=$("#report"); rep.innerHTML = html;
+  const old=document.title; document.title = title;
+  const imgs=[...rep.querySelectorAll("img")].map(i=>i.complete ? null : new Promise(r=>{ i.onload=i.onerror=r; }));
+  Promise.all(imgs).then(()=>setTimeout(()=>{ window.print(); document.title=old; }, 50));
+}
+
+/* ================= Farmacii ================= */
+function renderPharm(){
+  $("#title").textContent = "Farmacii";
+  const list=[...DB.pharmacies].sort((a,b)=>a.name.localeCompare(b.name,"ro"));
+  $("#app").innerHTML = `
+    <div class="card"><h2 id="pfTitle">Farmacie nouă</h2>
+      <input type="hidden" id="pId">
+      <label>Denumire *</label><input id="pName">
+      <div class="row">
+        <div><label>Oraș</label><input id="pCity"></div>
+        <div><label>Cod / nr. autorizație</label><input id="pCode"></div>
+      </div>
+      <label>Adresă</label><input id="pAddr">
+      <div class="btns"><button class="btn" onclick="savePharm()">Salvează</button>
+        <button class="btn sec" onclick="renderPharm()">Golește</button></div>
+    </div>
+    <div class="card">${list.length? list.map(p=>{
+        const n=DB.evals.filter(e=>e.pharmacyId===p.id).length;
+        return `<div class="list-item"><div class="grow"><div class="t">${esc(p.name)}</div>
+          <div class="s">${esc([p.address,p.city].filter(Boolean).join(", "))}${(p.address||p.city)?" · ":""}${n} evaluări</div></div>
+          <button class="btn sec" onclick="go('staff','${p.id}')" title="Angajați">👥 ${p.staff.filter(s=>s.active).length}</button>
+          <button class="btn sec" onclick="editPharm('${p.id}')">✎</button>
+          <button class="btn danger" onclick="delPharm('${p.id}')">✕</button></div>`;
+      }).join("") : `<div class="empty">Nicio farmacie adăugată.</div>`}</div>`;
+}
+function savePharm(){
+  const name=$("#pName").value.trim(); if(!name){ toast("Completează denumirea"); return; }
+  const id=$("#pId").value, data={name, city:$("#pCity").value.trim(), code:$("#pCode").value.trim(), address:$("#pAddr").value.trim()};
+  if(id){ Object.assign(DB.pharmacies.find(p=>p.id===id), data); }
+  else DB.pharmacies.push({id:uid(), ...data, staff:[]});
+  save(); toast("Farmacie salvată"); renderPharm();
+}
+function editPharm(id){
+  const p=pharm(id);
+  $("#pfTitle").textContent="Editează farmacia";
+  $("#pId").value=p.id; $("#pName").value=p.name; $("#pCity").value=p.city||""; $("#pCode").value=p.code||""; $("#pAddr").value=p.address||"";
+  window.scrollTo(0,0);
+}
+function delPharm(id){
+  const n=DB.evals.filter(e=>e.pharmacyId===id).length;
+  if(!confirm(n?`Farmacia are ${n} evaluări. Ștergi farmacia ȘI evaluările ei?`:"Ștergi farmacia?")) return;
+  DB.pharmacies=DB.pharmacies.filter(p=>p.id!==id); DB.evals=DB.evals.filter(e=>e.pharmacyId!==id);
+  save(); renderPharm();
+}
+
+/* ================= Angajați ================= */
+const roleOptions = sel => Object.entries(ROLES).map(([k,v])=>`<option value="${k}" ${k===sel?"selected":""}>${v}</option>`).join("");
+function staffHistory(staffId){
+  return DB.evals.flatMap(ev=>ev.staff.filter(x=>x.staffId===staffId).map(entry=>({ev, entry})))
+    .sort((a,b)=>(b.ev.date+b.ev.updated).localeCompare(a.ev.date+a.ev.updated));
+}
+function staffRow(pid, s){
+  const h=staffHistory(s.id);
+  const last = h.length ? computeScore(h[0].entry).pct : undefined;
+  return `<div class="list-item">
+    <details class="grow fold"><summary><span class="t">${esc(s.name)}</span>
+        <div class="s">${roleName(s.role)} · ${h.length} evaluări${h.length?` · ultima: ${pctTxt(last)} ${verdict(last).t}`:""}</div></summary>
+      ${h.length ? h.map(({ev,entry})=>{ const sc=computeScore(entry), v=verdict(sc.pct);
+        return `<div class="hist" onclick="go('view','${ev.id}',['staff','${pid}'])"><span>${fmtDate(ev.date)}${ev.status==="draft"?" · Ciornă":""}</span><span class="pill ${v.c}">${pctTxt(sc.pct)} · ${v.t}</span></div>`; }).join("")
+        : `<div class="s" style="color:var(--muted);padding:8px 0 0 24px">Nicio evaluare încă.</div>`}
+    </details>
+    ${s.active ? `<button class="btn sec" onclick="editStaff('${pid}','${s.id}')">✎</button>
+      <button class="btn danger" onclick="delStaff('${pid}','${s.id}')">✕</button>`
+      : `<button class="btn sec" onclick="reactivateStaff('${pid}','${s.id}')">Reactivează</button>`}
+  </div>`;
+}
+function renderStaff(pid){
+  const p=pharm(pid); if(!p){ go("pharm"); return; }
+  $("#title").textContent = "Angajați";
+  const act=p.staff.filter(s=>s.active), inact=p.staff.filter(s=>!s.active);
+  $("#app").innerHTML = `
+    <div class="card"><h2 style="margin-bottom:2px">${esc(p.name)}</h2>
+      <div style="color:var(--muted)">${esc([p.address,p.city].filter(Boolean).join(", "))}</div></div>
+    <div class="card"><h2 id="sfTitle">Angajat nou</h2>
+      <input type="hidden" id="sId">
+      <div class="row">
+        <div><label>Nume și prenume *</label><input id="sName"></div>
+        <div><label>Rol</label><select id="sRole">${roleOptions("farmacist")}</select></div>
+      </div>
+      <div class="btns"><button class="btn" onclick="saveStaff('${pid}')">Salvează</button>
+        <button class="btn sec" onclick="renderStaff('${pid}')">Golește</button></div>
+    </div>
+    <div class="card"><h3>Angajați activi (${act.length})</h3>
+      ${act.length ? act.map(s=>staffRow(pid,s)).join("") : `<div class="empty">Niciun angajat adăugat.</div>`}
+    </div>
+    ${inact.length?`<details class="card fold"><summary><b>Inactivi (${inact.length})</b></summary>${inact.map(s=>staffRow(pid,s)).join("")}</details>`:""}`;
+}
+function saveStaff(pid){
+  const name=$("#sName").value.trim(); if(!name){ toast("Completează numele"); return; }
+  const p=pharm(pid), id=$("#sId").value, data={name, role:$("#sRole").value};
+  if(id) Object.assign(p.staff.find(s=>s.id===id), data);
+  else p.staff.push({id:uid(), ...data, active:true});
+  save(); toast("Angajat salvat"); renderStaff(pid);
+}
+function editStaff(pid, sid){
+  const s=pharm(pid).staff.find(x=>x.id===sid);
+  $("#sfTitle").textContent="Editează angajatul";
+  $("#sId").value=s.id; $("#sName").value=s.name; $("#sRole").value=s.role;
+  window.scrollTo(0,0);
+}
+function delStaff(pid, sid){
+  const p=pharm(pid), s=p.staff.find(x=>x.id===sid), n=staffHistory(sid).length;
+  if(n){
+    if(!confirm(`${s.name} are ${n} evaluări. Va fi trecut ca inactiv; evaluările rămân.`)) return;
+    s.active=false;
+  }else{
+    if(!confirm(`Ștergi angajatul ${s.name}?`)) return;
+    p.staff=p.staff.filter(x=>x.id!==sid);
+  }
+  save(); renderStaff(pid);
+}
+function reactivateStaff(pid, sid){
+  pharm(pid).staff.find(x=>x.id===sid).active=true; save(); toast("Angajat reactivat"); renderStaff(pid);
+}
+
+/* ================= Setări ================= */
+function renderSettings(){
+  $("#title").textContent = "Setări";
+  $("#app").innerHTML = `
+    <div class="card"><h2>Evaluator implicit</h2>
+      <input id="evName" value="${esc(DB.evaluator)}" placeholder="Nume și prenume">
+      <div class="btns"><button class="btn" onclick="DB.evaluator=$('#evName').value.trim();save();toast('Salvat')">Salvează</button></div>
+    </div>
+    <p style="color:var(--muted);font-size:14px;margin:4px 4px 12px">Criteriile de evaluare: modificările se aplică doar evaluărilor noi. Evaluările existente își păstrează criteriile.</p>
+    ${critEditor("pharm")}
+    ${critEditor("farmacist")}
+    ${critEditor("asistent")}
+    <div class="card"><h2>Backup date</h2>
+      <p style="color:var(--muted);font-size:14px;margin-top:0">Datele sunt păstrate pe această tabletă. Fă periodic un backup (.json): „Descarcă backup pe tabletă” salvează o copie în Descărcări, iar „Backup în Google Drive” una în folderul „${esc(DRIVE_FOLDER)}” (un fișier pe zi; dacă Drive e configurat, se face și automat la fiecare evaluare finalizată). Aplicația îți amintește pe ecranul Evaluări când e nevoie de un backup. Dezinstalarea aplicației sau ștergerea datelor din Chrome șterge datele de pe tabletă.</p>
+      <div class="btns">
+        <button class="btn" id="driveBtn" onclick="backupDrive()">☁ Backup în Google Drive</button>
+        <button class="btn sec" onclick="exportData()">⬇ Descarcă backup pe tabletă</button>
+        <button class="btn sec" onclick="$('#imp').click()">⬆ Importă backup</button>
+        <input type="file" id="imp" accept=".json,application/json" class="hidden" onchange="importData(this.files[0])">
+      </div>
+      <p style="color:var(--muted);font-size:13px">${DB.pharmacies.length} farmacii · ${DB.evals.length} evaluări<br>Ultimul backup pe tabletă: ${fmtTime(driveState().lastLocal)} · în Drive: ${fmtTime(driveState().last)}</p>
+      ${driveState().failed ? `<p style="color:var(--warn);font-size:14px;font-weight:600">⚠ Ultimul backup în Drive nu a reușit. Apasă „Backup în Google Drive” când ai internet.</p>` : ""}
+    </div>`;
+}
+/* ================= Editor criterii ================= */
+const CRIT_LISTS = {pharm:"Criterii farmacie", farmacist:"Criterii farmacist", asistent:"Criterii asistent"};
+let critEdit = null;   // {key, id} sau {key, isNew:true, g}
+function critList(key){ return key==="pharm" ? DB.criteria : DB.staffCriteria[key]; }
+function setCritList(key, arr){ if(key==="pharm") DB.criteria=arr; else DB.staffCriteria[key]=arr; }
+function critEditRow(key, g, n){
+  return `<div class="crow editing">
+    <input id="ceG" list="cats-${key}" value="${esc(g)}" placeholder="Categorie">
+    <input id="ceN" value="${esc(n)}" placeholder="Criteriu">
+    <div class="btns" style="margin-top:0"><button class="btn" onclick="critEditSave()">Salvează</button><button class="btn sec" onclick="critEditCancel()">Anulează</button></div>
+  </div>`;
+}
+function critEditor(key){
+  const list=critList(key), cats=[...new Set(list.map(c=>c.g))], ed=critEdit&&critEdit.key===key?critEdit:null;
+  let lastG=null, rows="";
+  list.forEach((c,i)=>{
+    if(c.g!==lastG){ rows+=`<div class="cat">${esc(c.g)}</div>`; lastG=c.g; }
+    rows += ed && ed.id===c.id ? critEditRow(key, c.g, c.n)
+      : `<div class="crow"><div class="grow">${esc(c.n)}</div>
+        <button class="ib" onclick="critEditStart('${key}','${c.id}')" aria-label="Editează">✎</button>
+        <button class="ib" ${i===0?"disabled":""} onclick="critMove('${key}','${c.id}',-1)" aria-label="Mută în sus">↑</button>
+        <button class="ib" ${i===list.length-1?"disabled":""} onclick="critMove('${key}','${c.id}',1)" aria-label="Mută în jos">↓</button>
+        <button class="ib del" onclick="critDel('${key}','${c.id}')" aria-label="Șterge">✕</button></div>`;
+  });
+  if(ed && ed.isNew) rows += `<div class="cat">Criteriu nou</div>` + critEditRow(key, ed.g, "");
+  return `<div class="card"><h2>${CRIT_LISTS[key]}</h2>
+    <datalist id="cats-${key}">${cats.map(g=>`<option value="${esc(g)}">`).join("")}</datalist>
+    ${rows}
+    <div class="btns"><button class="btn sec" onclick="critAdd('${key}')">＋ Criteriu</button>
+      <button class="btn danger" onclick="critReset('${key}')">Revino la lista standard</button></div>
+  </div>`;
+}
+function critFocus(){ const n=$("#ceN"); if(n){ n.focus(); n.scrollIntoView({block:"center"}); } }
+function critEditStart(key, id){ critEdit={key, id}; renderSettings(); critFocus(); }
+function critAdd(key){ const l=critList(key); critEdit={key, isNew:true, g:l.length?l[l.length-1].g:""}; renderSettings(); critFocus(); }
+function critEditCancel(){ critEdit=null; renderSettings(); }
+function critEditSave(){
+  const g=$("#ceG").value.trim()||"General", n=$("#ceN").value.trim();
+  if(!n){ toast("Completează criteriul"); return; }
+  const list=critList(critEdit.key);
+  if(critEdit.isNew) list.push({id:"c"+uid(), g, n});
+  else Object.assign(list.find(c=>c.id===critEdit.id), {g, n});
+  critEdit=null; save(); toast("Criteriu salvat"); renderSettings();
+}
+function critMove(key, id, d){
+  const list=critList(key), i=list.findIndex(c=>c.id===id), j=i+d;
+  if(j<0 || j>=list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  save(); renderSettings();
+}
+function critDel(key, id){
+  const list=critList(key), c=list.find(x=>x.id===id);
+  if(list.length===1){ toast("Lista trebuie să aibă cel puțin un criteriu"); return; }
+  if(!confirm(`Ștergi criteriul „${c.n}”?`)) return;
+  setCritList(key, list.filter(x=>x.id!==id)); critEdit=null; save(); renderSettings();
+}
+function critReset(key){
+  if(!confirm(`Înlocuiești „${CRIT_LISTS[key]}” cu lista standard?`)) return;
+  setCritList(key, key==="pharm" ? defCrit() : defStaffCrit()[key]); critEdit=null; save(); renderSettings();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  const t=new Date().toTimeString().slice(0,5).replace(":","");
+  a.download=`backup_evaluari_farmacii_${today()}_${t}.json`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  setDriveState({lastLocal:new Date().toISOString()});
+}
+function importData(file){
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d.pharmacies||!d.evals) throw 0;
+      if(!confirm(`Importi ${d.pharmacies.length} farmacii și ${d.evals.length} evaluări? Datele actuale vor fi înlocuite.`)) return;
+      DB=migrate(d); save(); toast("Backup importat"); renderSettings();
+    }catch(e){ toast("Fișier de backup invalid"); }
+  };
+  r.readAsText(file);
+}
+
+/* ================= Backup Google Drive ================= */
+// ID client OAuth din Google Cloud Console (tip „Web application”)
+const GOOGLE_CLIENT_ID = "";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";   // doar fișierele create de aplicație
+const DRIVE_FOLDER = "Evaluare Farmacii - backup";
+const DRIVE_KEY = "evalfarm.drive";
+let gToken = null, gTokenExp = 0, gClient = null, gPending = null;
+
+function driveState(){ try{ return JSON.parse(localStorage.getItem(DRIVE_KEY))||{}; }catch(e){ return {}; } }
+function setDriveState(s){ try{ localStorage.setItem(DRIVE_KEY, JSON.stringify({...driveState(), ...s})); }catch(e){} }
+
+// Trebuie apelată direct din click, altfel browserul blochează fereastra de autentificare
+function getToken(){
+  return new Promise((resolve,reject)=>{
+    if(gToken && Date.now()<gTokenExp) return resolve(gToken);
+    if(!GOOGLE_CLIENT_ID) return reject(new Error("Backup-ul în Drive nu este configurat (lipsește GOOGLE_CLIENT_ID)"));
+    if(!(window.google && google.accounts && google.accounts.oauth2)) return reject(new Error("Nu există conexiune la Google. Verifică internetul."));
+    if(!gClient) gClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID, scope: DRIVE_SCOPE,
+      callback: r => {
+        const p=gPending; gPending=null; if(!p) return;
+        if(r.error) return p.reject(new Error("Autentificare Google eșuată"));
+        gToken=r.access_token; gTokenExp=Date.now()+(r.expires_in-60)*1000; p.resolve(gToken);
+      },
+      error_callback: e => {
+        const p=gPending; gPending=null; if(!p) return;
+        p.reject(new Error(e && e.type==="popup_closed" ? "Autentificare anulată" : "Autentificare Google eșuată"));
+      }
+    });
+    gPending = {resolve, reject};
+    gClient.requestAccessToken({prompt: driveState().authorized ? "" : "consent"});
+  });
+}
+async function driveApi(url, opt={}){
+  const r = await fetch(url, {...opt, headers:{Authorization:"Bearer "+gToken, ...(opt.headers||{})}});
+  if(r.status===401){ gToken=null; throw new Error("Sesiunea Google a expirat. Încearcă din nou."); }
+  if(!r.ok) throw new Error("Eroare Google Drive ("+r.status+")");
+  return r.json();
+}
+async function driveFind(q){
+  const d = await driveApi("https://www.googleapis.com/drive/v3/files?fields=files(id)&q="+encodeURIComponent(q+" and trashed=false"));
+  return d.files.length ? d.files[0].id : null;
+}
+async function driveUpload(){
+  let folder = await driveFind(`name='${DRIVE_FOLDER}' and mimeType='application/vnd.google-apps.folder'`);
+  if(!folder) folder = (await driveApi("https://www.googleapis.com/drive/v3/files?fields=id", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({name:DRIVE_FOLDER, mimeType:"application/vnd.google-apps.folder"})
+  })).id;
+  const name=`backup_evaluari_farmacii_${today()}.json`;
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+  const existing = await driveFind(`name='${name}' and '${folder}' in parents`);
+  if(existing){
+    await driveApi(`https://www.googleapis.com/upload/drive/v3/files/${existing}?uploadType=media`, {method:"PATCH", body:blob});
+  }else{
+    const form=new FormData();
+    form.append("metadata", new Blob([JSON.stringify({name, parents:[folder], mimeType:"application/json"})],{type:"application/json"}));
+    form.append("file", blob);
+    await driveApi("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id", {method:"POST", body:form});
+  }
+  setDriveState({authorized:true, failed:false, last:new Date().toISOString()});
+}
+async function backupDrive(){
+  const btn=$("#driveBtn");
+  const tok=getToken();   // pornit sincron, în interiorul click-ului
+  if(btn){ btn.disabled=true; btn.textContent="Se salvează…"; }
+  try{
+    await tok; await driveUpload();
+    toast("Backup salvat în Google Drive");
+  }catch(e){
+    setDriveState({failed:true});
+    toast(e.message || "Backup-ul în Drive a eșuat");
+  }finally{
+    if($("#driveBtn")) renderSettings();
+  }
+}
+// La finalizarea unei evaluări: backup în Drive, doar dacă e configurat (copia locală se face din memento sau din Setări)
+async function autoBackup(){
+  if(!GOOGLE_CLIENT_ID) return;
+  const tok = getToken();   // pornit sincron, în interiorul click-ului
+  try{
+    await tok; await driveUpload();
+    toast("Evaluare finalizată · backup salvat în Drive");
+  }catch(e){
+    setDriveState({failed:true});
+    toast("Drive: "+(e.message||"eroare")+" – reîncearcă din Setări");
+  }
+  if(view==="evals") renderEvals();
+}
+
+/* ================= Memento backup ================= */
+const REMIND_DAYS = 7, REMIND_EVALS = 3;
+let remindSnoozed = false;   // „Mai târziu” ascunde mementoul până la redeschiderea aplicației
+const fmtTime = t => t ? new Date(t).toLocaleString("ro-RO",{dateStyle:"short",timeStyle:"short"}) : "niciodată";
+function lastBackup(){ const s=driveState(); return [s.last, s.lastLocal].filter(Boolean).sort().pop() || ""; }
+// Evaluările salvate după ultimul backup; memento dacă sunt ≥3, dacă ultimul backup e mai vechi de 7 zile sau dacă nu s-a făcut niciunul
+function backupReminder(){
+  if(remindSnoozed) return "";
+  const last=lastBackup(), pending=DB.evals.filter(e=>(e.updated||e.created||"")>last).length;
+  if(!pending) return "";
+  const days = last ? (Date.now()-new Date(last))/864e5 : Infinity;
+  if(pending<REMIND_EVALS && days<REMIND_DAYS) return "";
+  return `<div class="remind"><b>⚠ E timpul pentru un backup</b>
+    <div class="s">${pending===1?"O evaluare nu este":pending+" evaluări nu sunt"} în niciun backup · ultimul backup: ${fmtTime(last)}</div>
+    <div class="btns">
+      <button class="btn" onclick="remindBackup()">⬇ Descarcă backup acum</button>
+      ${GOOGLE_CLIENT_ID?`<button class="btn sec" onclick="backupDrive().then(renderEvals)">☁ Drive</button>`:""}
+      <button class="btn sec" onclick="remindSnoozed=true;renderEvals()">Mai târziu</button>
+    </div></div>`;
+}
+function remindBackup(){ exportData(); toast("Backup descărcat în Descărcări"); renderEvals(); }
+
+/* ================= Pornire ================= */
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))
+  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+go("evals");
+</script>
+</body>
+</html>
